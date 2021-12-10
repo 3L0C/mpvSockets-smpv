@@ -43,8 +43,18 @@ i have made slight modifications shown here
      opts.extend(files)
 ```
 the first change makes [other scripts](https://github.com/johndovern/mpvSockets-umpv#usage-with-mpvs-json-ipc) compatible
+
 there may be a better solution than setting this as a hardcoded path but i don't know python or programming in general so please suggest a better way that gets the same result if you have one
-the second change is actually what enables us to solve this issue. `"--x11-name=umpv"` will set the WM_CLASS value of the opened window to `WM_CLASS(STRING) = "umpv", "mpv"`. without this the changes made in mpvSockets.lua will not work. either make this change to umpv yourself or replace your old version with this one.
+
+the second change is actually what enables us to solve this issue.
+
+`"--x11-name=umpv"`
+
+will set the WM_CLASS value of the opened window to
+
+`WM_CLASS(STRING) = "umpv", "mpv"`
+
+without this the changes made in mpvSockets.lua will not work. either make this change to umpv yourself or replace your old version with this one.
 ### mpvSockets.lua
 mpvSockets.lua has been modified as follows
 ```bash
