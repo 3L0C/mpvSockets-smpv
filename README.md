@@ -133,9 +133,7 @@ i've also added the following
 ```
 this basically does the same thing as before, checks to see if the window was created by umpv or mpv. if it was umpv then we remove /tmp/mpv/Sockets/umpv_socket. sometimes having that socket lying around has caused issues for me. if i have no umpv window open currently but did previously and that socket is still sitting there, then umpv will *sometimes* pipe that video to that socket which leads nowhere meaning no video ever opens.however, if we remove that socket each time we close a umpv window this problem disapears. this part does removes either umpv_socket or ppid socket depending on the WM_CLASS value.
 # Installation
-**this is not meant for windows**
-
-but then again windows users can't even use umpv so that sort of goes without saying
+## Linux
 1. download mpvSockets.lua and place it in $HOME/.config/mpv/scripts
 ``` bash
 curl "https://raw.githubusercontent.com/johndovern/mpvSockets/master/mpvSockets.lua" --create-dirs -o "$Your_Mpv_Scripts_Directory_Location/mpvSockets.lua"
@@ -150,6 +148,9 @@ $Your_Mpv_Scripts_Directory_Location=$HOME/config/mpv/scripts
 curl -O "https://raw.githubusercontent.com/johndovern/mpvSockets-umpv/master/umpv"
 ```
 and that's it...[kinda]( https://github.com/johndovern/mpvSockets-umpv#umpv)
+## Note - this is not meant for windows
+
+but then again windows users can't even use umpv so that sort of goes without saying
 ## disclaimer
 right now if `/tmp/mpvSockets` does not exist then videos launched through umpv, will not have a socket full stop. if mpv is launched on it's own then this script will create that directory, but (at least in my testing) no socket will actually be created, only the directory, which is somewhat odd to me. so as long as you launch standard mpv at least once then everything will work fine after that. as far as i can tell this is the only major issue currently present.
 as i mentioned above hardcoding umpv to use `/tmp/mpvSockets/umpv_socket` is a bad idea. any better suggestions are happliy welcome.
