@@ -96,24 +96,24 @@ there are two important changes
 +    if os.execute("xdotool search -pid '"..ppid.."' | xargs -I '{}' xprop -id '{}' | grep umpv") then
 ```
 **this command uses [xdotool](https://github.com/jordansissel/xdotool), if you do not have it installed this script will be useless**
-
-`xdotool search -pid '"..pid.."'`
-
+```bash
+xdotool search -pid '"..pid.."'
+```
 the first part uses xdotool's search function and returns the window id of the ppid entered
-
-`| xargs -I '{}' xprop -id '{}'`
-
+```bash
+| xargs -I '{}' xprop -id '{}'
+```
 that window id is piped, effectively, to xprop. xprop does not take stdout so it has to be run through xargs first and then given to xprop. xprop gives us a lot of useful info
-
-`| grep umpv`
-
+```bash
+| grep umpv
+```
 finally grep searches through all that info for what we care about, the WM_CLASS value. if mpv was launched through umpv, this value will look like this
-
-`WM_CLASS(STRING) = "umpv", "mpv"`
-
+```bash
+WM_CLASS(STRING) = "umpv", "mpv"
+```
 if not, it will fail and mpvSockets.lua will work as it normally does and create a unique socket for that ppid.
 #### Waiting for file to load
-the above if statement will not work if it is run at launch. this is because mpv does not have a window id yet as it is only running as a process and needs time to create a window (espceially with umpv, idk why it take so long for the window to actually open...). this causes `xdotool search -pid $ppid` to fail no matter what. the if statement will always return false and it effectively becomes garbage. however, if we wrap the if statement in a fucntion and name it socket_later, and add this line
+the above if statement will not work if it is run at launch. this is because mpv does not have a window id yet as it is only running as a process and needs time to create a window (espceially with umpv, idk why it take so long for the window to actually open...). this causes `xdotool search -pid $ppid` to fail no matter what. the if statement will always return false and it effectively becomes garbage. however, we can solve this by putting these commands in a fucntion and running that function when the file is loaded, like so:
 ```bash
 +mp.register_event("file-loaded", socket_later)
 ```
