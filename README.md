@@ -143,7 +143,7 @@ if you're on Linux, most likely the location is `~/.config/mpv/scripts`, so run 
 $Your_Mpv_Scripts_Directory_Location=$HOME/config/mpv/scripts
 ```
 2. install [xdotool](https://github.com/jordansissel/xdotool) if you do not have it installed already
-3. download umpv from this repo and place them in your $PATH [*or modify your existing version*](https://github.com/johndovern/mpvSockets-umpv#umpv)
+3. download umpv from this repo and place it in your $PATH [*or modify your existing version*](https://github.com/johndovern/mpvSockets-umpv#umpv)
 ```bash
 curl -O "https://raw.githubusercontent.com/johndovern/mpvSockets-umpv/master/umpv"
 ```
