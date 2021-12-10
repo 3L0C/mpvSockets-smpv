@@ -1,6 +1,7 @@
 -- mpvSockets, one socket per instance, removes socket on exit
 
 local utils = require 'mp.utils'
+local mp = require("mp")
 
 local function get_temp_path()
     local directory_seperator = package.config:match("([^\n]*)\n?")
@@ -27,10 +28,24 @@ function join_paths(...)
 end
 
 ppid = utils.getpid()
-os.execute("mkdir " .. join_paths(tempDir, "mpvSockets") .. " 2>/dev/null")
-mp.set_property("options/input-ipc-server", join_paths(tempDir, "mpvSockets", ppid))
+
+function socket_later()
+    local media_title = mp.get_property("media-title")
+    if os.execute(string.format("umpv-check '%s'", media_title)) then
+        os.execute("mkdir " .. join_paths(tempDir, "mpvSockets") .. " 2>/dev/null")
+        mp.set_property("options/input-ipc-server", join_paths(tempDir, "mpvSockets", ppid))
+    end
+end
+
+mp.register_event("file-loaded", socket_later)
 
 function shutdown_handler()
+    local media_title = mp.get_property("media-title")
+    if os.execute(string.format("umpv-check '%s'", media_title, "down")) then
         os.remove(join_paths(tempDir, "mpvSockets", ppid))
+    else
+        os.remove(join_paths(tempDir, "mpvSockets/umpv_socket"))
+    end
 end
+
 mp.register_event("shutdown", shutdown_handler)

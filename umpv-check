@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [[ "$2" != "down" ]]; then sleep 0.5; fi
+i=$(wmctrl -lx | grep "$1")
+if echo "$i" | grep "gl.mpv"; then exit 0;
+elif echo "$i" | grep "umpv.mpv"; then exit 1;
+else exit 1; fi
