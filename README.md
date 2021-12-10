@@ -89,8 +89,8 @@ mpvSockets.lua has been modified as follows
  mp.register_event("shutdown", shutdown_handler)
 ```
 there are two important changes
-1. mpvSockets.lua does not do anything until your file is loaded
-2. mpvSockets.lua checks to see if umpv was used to launch mpv
+1. mpvSockets.lua checks to see if umpv was used to launch mpv
+2. mpvSockets.lua does not do anything until your file is loaded
 #### umpv checking
 ```bash
 +    if os.execute("xdotool search -pid '"..ppid.."' | xargs -I '{}' xprop -id '{}' | grep umpv") then
