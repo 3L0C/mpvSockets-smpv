@@ -136,7 +136,6 @@ this basically does the same thing as before, checks to see if the window was cr
 **this is not meant for windows**
 
 but then again windows users can't even use umpv so that sort of goes without saying
----
 1. download mpvSockets.lua and place it in $HOME/.config/mpv/scripts
 ``` bash
 curl "https://raw.githubusercontent.com/johndovern/mpvSockets/master/mpvSockets.lua" --create-dirs -o "$Your_Mpv_Scripts_Directory_Location/mpvSockets.lua"
