@@ -50,8 +50,7 @@ the second change is actually what enables us to solve this issue.
 
 `"--x11-name=umpv"`
 
-will set the WM_CLASS value of the opened window to
-
+will set the WM_CLASS value of the opened window to:
 `WM_CLASS(STRING) = "umpv", "mpv"`
 
 without this the changes made in mpvSockets.lua will not work. either make this change to umpv yourself or replace your old version with this one.
