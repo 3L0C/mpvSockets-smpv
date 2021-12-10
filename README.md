@@ -151,10 +151,10 @@ and that's it...[kinda]( https://github.com/johndovern/mpvSockets-umpv#umpv)
 ## Note - this is not meant for windows
 
 but then again windows users can't even use umpv so that sort of goes without saying
-## disclaimer
-right now if `/tmp/mpvSockets` does not exist then videos launched through umpv, will not have a socket full stop. if mpv is launched on it's own then this script will create that directory, but (at least in my testing) no socket will actually be created, only the directory, which is somewhat odd to me. so as long as you launch standard mpv at least once then everything will work fine after that. as far as i can tell this is the only major issue currently present.
-as i mentioned above hardcoding umpv to use `/tmp/mpvSockets/umpv_socket` is a bad idea. any better suggestions are happliy welcome.
-i am not a programer, i just found a way to have my cake and eat it to. if you have a better way of solving this issue then please share it with me.
+## disclaimers
+* right now if `/tmp/mpvSockets` does not exist then videos launched through umpv, will not have a socket full stop. if mpv is launched on it's own then this script will create that directory, but (at least in my testing) no socket will actually be created, only the directory, which is somewhat odd to me. so as long as you launch standard mpv at least once then everything will work fine after that. as far as i can tell this is the only major issue currently present.
+* as i mentioned above hardcoding umpv to use `/tmp/mpvSockets/umpv_socket` is a bad idea. any better suggestions are happliy welcome.
+* i am not a programer, i just found a way to have my cake and eat it to. if you have a better way of solving this issue then please share it with me.
 # Usage, with Mpv's [JSON IPC](https://github.com/mpv-player/mpv/blob/master/DOCS/man/ipc.rst)
 ## Linux / unixes (unix sockets):
 a script that pauses all running mpv instances:
