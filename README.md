@@ -129,7 +129,7 @@ i've also added the following
 +    end
  end
 ```
-this basically does the same thing as before, checks to see if the window was created by umpv or mpv. if it was umpv then we remove /tmp/mpv/Sockets/umpv_socket. sometimes having that socket lying around has caused issues for me. if i have no umpv window open currently but did previously and that socket is still sitting there, then umpv will *sometimes* pipe that video to that socket which leads nowhere meaning no video ever opens.however, if we remove that socket each time we close a umpv window this problem disapears. this part does removes either umpv_socket or ppid socket depending on the WM_CLASS value.
+this basically does the same thing as before, checks to see if the window was created by umpv or mpv. if it was umpv then we remove /tmp/mpv/Sockets/umpv_socket. sometimes having that socket lying around has caused issues for me. if i have no umpv window open currently but did previously and that socket is still sitting there, then umpv will *sometimes* pipe that video to that socket which leads nowhere meaning no video ever opens. however, if we remove that socket each time we close a umpv window this problem disapears. this part does removes either umpv_socket or ppid socket depending on the WM_CLASS value.
 # Installation
 ## Linux
 1. download mpvSockets.lua and place it in $HOME/.config/mpv/scripts
