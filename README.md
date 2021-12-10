@@ -103,11 +103,11 @@ the first part uses xdotool's search function and returns the window id of the p
 
 `| xargs -I '{}' xprop -id '{}'`
 
-that window id is piped, effectively, to xprop. xprop does not take stdout so it has to be run through xargs first and then given to xprop. xprop gives us a lot of useful info, amongst all that info is a little value by the name of WM_CLASS
+that window id is piped, effectively, to xprop. xprop does not take stdout so it has to be run through xargs first and then given to xprop. xprop gives us a lot of useful info
 
 `| grep umpv`
 
-finally grep searches for what we care about, the WM_CLASS value. if mpv was launched through umpv, this value will be set to
+finally grep searches through all that info for what we care about, the WM_CLASS value. if mpv was launched through umpv, this value will look like this
 
 `WM_CLASS(STRING) = "umpv", "mpv"`
 
