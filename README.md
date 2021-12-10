@@ -12,6 +12,7 @@ which is great...if you don't use [umpv](https://github.com/mpv-player/mpv/blob/
 2. mpv is then started by umpv
 3. all lua scripts get loaded
 4. mpvSockets.lua says "lol no" and makes makes it so umpv is useless
+
 *or at least it used to*
 ## tl;dr
 [mpvSockets.lua now tests to see if umpv was used to launch mpv through a single if statement before it tries to create a new socket](https://github.com/johndovern/mpvSockets-umpv#installation)
