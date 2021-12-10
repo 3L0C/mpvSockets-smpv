@@ -105,11 +105,7 @@ the first part uses xdotool's search function and returns the window id of the p
 
 `| xargs -I '{}' xprop -id '{}'`
 
-next that window id is piped, effectively, to xprop
-
-xprop does not take stdout so it has to be run through xargs first and then given to xprop
-
-xprop gives us a lot of useful info, amongst all that info is a little value by the name of WM_CLASS
+next that window id is piped, effectively, to xprop. xprop does not take stdout so it has to be run through xargs first and then given to xprop. xprop gives us a lot of useful info, amongst all that info is a little value by the name of WM_CLASS
 
 `| grep umpv`
 
@@ -119,12 +115,11 @@ finally grep searches for what we care about, the WM_CLASS value. if mpv was lau
 
 if not, it will fail and mpvSockets.lua will work as it normally does and create a unique socket for that ppid.
 #### Waiting for file to load
-the above if statement will not work if it is run at launch. this is because mpv does not have a window id yet as it is only running as a process and needs time to create a window (espceially with umpv, idk why it take so long for the window to actually open...). this causes `xdotool search -pid $ppid` to fail no matter what. the if statement will always return false and is effectively becomes garbage
-however, if we wrap the if statement in a fucntion and name it socket_later, and then add this line
+the above if statement will not work if it is run at launch. this is because mpv does not have a window id yet as it is only running as a process and needs time to create a window (espceially with umpv, idk why it take so long for the window to actually open...). this causes `xdotool search -pid $ppid` to fail no matter what. the if statement will always return false and it effectively becomes garbage. however, if we wrap the if statement in a fucntion and name it socket_later, and add this line
 ```bash
 +mp.register_event("file-loaded", socket_later)
 ```
-the if statement will not be run until the file is loaded. if the file is loaded we most certainly have a window id which solves the aforementioned problem and everything just werks
+the if statement will not be run until the file is loaded. if the file is loaded we most certainly have a window id which solves the aforementioned problem and everything [just werks](https://github.com/johndovern/mpvSockets-umpv#umpv)
 #### Niceties
 i've also added the following
 ```bash
@@ -136,11 +131,10 @@ i've also added the following
 +    end
  end
 ```
-this basically does the same thing as before, checks to see if the window was created by umpv or mpv. if it was umpv then we remove /tmp/mpv/Sockets/umpv_socket. sometimes having that socket lying around has caused issues for me. if i have no umpv window open currently but did previously and that socket is still sitting there, then umpv will *sometimes* pipe that video to that socket which leads nowhere meaning no video ever opens.
-however, if we remove that socket each time we close a umpv window this problem disapears.
-so that's what this part does removes either umpv_socket or ppid socket depending on the WM_CLASS value.
+this basically does the same thing as before, checks to see if the window was created by umpv or mpv. if it was umpv then we remove /tmp/mpv/Sockets/umpv_socket. sometimes having that socket lying around has caused issues for me. if i have no umpv window open currently but did previously and that socket is still sitting there, then umpv will *sometimes* pipe that video to that socket which leads nowhere meaning no video ever opens.however, if we remove that socket each time we close a umpv window this problem disapears. this part does removes either umpv_socket or ppid socket depending on the WM_CLASS value.
 # Installation
 **this is not meant for windows**
+
 but then again windows users can't even use umpv so that sort of goes without saying
 ---
 1. download mpvSockets.lua and place it in $HOME/.config/mpv/scripts
