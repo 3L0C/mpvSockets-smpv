@@ -42,9 +42,7 @@ i have made slight modifications shown here
                   "--"])
      opts.extend(files)
 ```
-the first change makes [other scripts](https://github.com/johndovern/mpvSockets-umpv#usage-with-mpvs-json-ipc) compatible
-
-there may be a better solution than setting this as a hardcoded path but i don't know python or programming in general so please suggest a better way that gets the same result if you have one
+the first change makes [other scripts](https://github.com/johndovern/mpvSockets-umpv#usage-with-mpvs-json-ipc) compatible. there may be a better solution than setting this as a hardcoded path but i don't know python or programming in general so please suggest a better way that gets the same result if you have one
 
 the second change is actually what enables us to solve this issue.
 
