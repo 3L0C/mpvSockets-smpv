@@ -52,7 +52,7 @@ will set the WM_CLASS value of the opened window to:
 
 `WM_CLASS(STRING) = "umpv", "mpv"`
 
-without this the changes made in mpvSockets.lua will not work. either make this change to umpv yourself or replace your old version with the one in this repo.
+without this the changes made in mpvSockets.lua will not work. **either make this change to umpv yourself or replace your old version with the one in this repo.**
 ### mpvSockets.lua
 mpvSockets.lua has been modified as follows
 ```bash
