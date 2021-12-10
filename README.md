@@ -98,6 +98,7 @@ there are two important changes
 +    if os.execute("xdotool search -pid '"..ppid.."' | xargs -I '{}' xprop -id '{}' | grep umpv") then
 ```
 **this command uses [xdotool](https://github.com/jordansissel/xdotool), if you do not have it installed this script will be useless**
+
 `xdotool search -pid '"..pid.."'`
 
 the first part uses xdotool's search function and returns the window id of the ppid entered
