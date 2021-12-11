@@ -34,8 +34,8 @@ function socket_later()
 	--comment out next line if you don't want confirmation
         mp.osd_message("umpv detected")
     else
-        mp.set_property("options/input-ipc-server", join_paths(tempDir, "mpvSockets", ppid))
         os.execute("mkdir " .. join_paths(tempDir, "mpvSockets") .. " 2>/dev/null")
+        mp.set_property("options/input-ipc-server", join_paths(tempDir, "mpvSockets", ppid))
     end
 end
 
