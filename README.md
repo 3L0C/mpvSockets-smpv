@@ -130,6 +130,10 @@ i've also added the following
  end
 ```
 this basically does the same thing as before, checks to see if the window was created by umpv or mpv. if it was umpv then we remove /tmp/mpv/Sockets/umpv_socket. sometimes having that socket lying around has caused issues for me. if i have no umpv window open currently but did previously and that socket is still sitting there, then umpv will *sometimes* pipe that video to that socket which leads nowhere meaning no video ever opens. however, if we remove that socket each time we close a umpv window this problem disapears. this part removes either umpv_socket or the ppid socket depending on the WM_CLASS value.
+```bash
++        mp.osd_message("umpv detected")
+```
+this line was useful for debugging. i am including it as i think it is the easiest way to let a user know of this script is working or not. if you launch a video through umpv but don't see this message when the file loads then something went wrong. if things start are broken for you please open an issue, i would like to make this as fool proof as possible. if you don't want this message popping up feel free to delete line 35 and you'll no longer see this message.
 # Installation
 ## Linux
 1. download mpvSockets.lua and place it in $HOME/.config/mpv/scripts
