@@ -15,7 +15,9 @@ which is great...if you don't use [umpv](https://github.com/mpv-player/mpv/blob/
 
 *or at least it used to*
 ## tl;dr
-[mpvSockets.lua now tests to see if umpv was used to launch mpv through a single if statement before it tries to create a new socket](https://github.com/johndovern/mpvSockets-umpv#installation)
+mpvSockets.lua now tests to see if umpv was used to launch mpv through a single if statement before it tries to create a new socket.
+
+[install](https://github.com/johndovern/mpvSockets-umpv#installation)
 ## The solution
 ### [umpv](https://github.com/mpv-player/mpv/blob/master/TOOLS/umpv)
 **forked and licensed under LGPLv2.1 (correct me if i am wrong) is a part of the offical mpv repo**
