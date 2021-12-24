@@ -173,6 +173,8 @@ but then again windows users can't even use umpv so that sort of goes without sa
 ## disclaimers
 * right now if the directory `/tmp/mpvSockets` does not exist then videos
   launched through umpv, will not have a socket, full stop.
+* as i mentioned above i do not think that hardcoding umpv to use `/tmp/mpvSockets/umpv_socket` is standard or the best way to do this. any better suggestions are happliy welcome.
+* i am not a programer, i just found a way to have my cake and eat it to. if you have a better way of solving this issue then please share it with me.
 * ~~if mpv is
   launched on it's own then this script will create that directory, but (at
   least in my testing) no socket will actually be created, only the directory,
@@ -180,8 +182,6 @@ but then again windows users can't even use umpv so that sort of goes without sa
   everything will work fine after that. as far as i can tell this is the only
   major issue currently present due to my modifications.~~
   [fixed](https://github.com/johndovern/mpvSockets-umpv/commit/c3acf721ac3eab4601d7aca43f6d43812e47e3e3)
-* as i mentioned above i do not think that hardcoding umpv to use `/tmp/mpvSockets/umpv_socket` is standard or the best way to do this. any better suggestions are happliy welcome.
-* i am not a programer, i just found a way to have my cake and eat it to. if you have a better way of solving this issue then please share it with me.
 # Usage, with Mpv's [JSON IPC](https://github.com/mpv-player/mpv/blob/master/DOCS/man/ipc.rst)
 ## Linux / unixes (unix sockets):
 a script that pauses all running mpv instances:
