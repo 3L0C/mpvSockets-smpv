@@ -97,7 +97,7 @@ there are two important changes
 ```bash
 +    if os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv") then
 ```
-**this command uses [xdotool](https://github.com/jordansissel/xdotool), if you do not have it installed this script will be useless**
+**this command uses [xdotool](https://github.com/jordansissel/xdotool), if you do not have it installed this script will be useless.**
 xprop can be used without manually clicking on windows if it is given a window
 id number. to get the window id xdotool is used. xdotool's search fucntion will
 return the window id number that matches the given pid. with that we've got all
