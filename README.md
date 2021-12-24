@@ -23,7 +23,7 @@ mpvSockets.lua now tests to see if umpv was used to launch mpv through a single 
 **forked and licensed under LGPLv2.1 (correct me if i am wrong) is a part of the offical mpv repo**
 
 i have made slight modifications shown here
-```bash
+```python
 --- umpv-old    2021-12-10 13:40:14.554428588 -0800
 +++ umpv-new    2021-12-10 13:41:35.881098073 -0800
 @@ -52,7 +52,7 @@
@@ -57,7 +57,7 @@ will set the WM_CLASS value of the opened window to:
 without this the changes made in mpvSockets.lua will not work. **either make this change to umpv yourself or replace your old version with the one in this repo.**
 ### mpvSockets.lua
 mpvSockets.lua has been modified as follows
-```bash
+```lua
 --- mpvSockets-old.lua      2021-12-10 13:35:18.571085019 -0800
 +++ mpvSockets-new.lua 2021-12-10 13:35:34.534418903 -0800
 @@ -27,10 +27,26 @@
@@ -68,9 +68,9 @@ mpvSockets.lua has been modified as follows
 -mp.set_property("options/input-ipc-server", join_paths(tempDir, "mpvSockets", ppid))
 +
 +function socket_later()
-+    if os.execute("xdotool search -pid '"..ppid.."' | xargs -I '{}' xprop -id '{}' | grep umpv") then
++    if os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv") then
 +        --nothing to do if true, as umpv has already created the socket
-+       --comment out next line if you don't want confirmation
++        --comment out next line if you don't want confirmation
 +        mp.osd_message("umpv detected")
 +    else
 +        mp.set_property("options/input-ipc-server", join_paths(tempDir, "mpvSockets", ppid))
@@ -95,27 +95,25 @@ there are two important changes
 2. mpvSockets.lua does not do anything until your file is loaded
 #### umpv checking
 ```bash
-+    if os.execute("xdotool search -pid '"..ppid.."' | xargs -I '{}' xprop -id '{}' | grep umpv") then
++    if os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv") then
 ```
 **this command uses [xdotool](https://github.com/jordansissel/xdotool), if you do not have it installed this script will be useless**
-```bash
-xdotool search -pid '"..pid.."'
-```
-the first part uses xdotool's search function and returns the window id of the ppid entered
-```bash
-| xargs -I '{}' xprop -id '{}'
-```
-that window id is piped, effectively, to xprop. xprop does not take stdout so it has to be run through xargs first and then given to xprop. xprop gives us a lot of useful info
-```bash
-| grep umpv
-```
-finally grep searches through all that info for what we care about, the WM_CLASS value. if mpv was launched through umpv, this value will look like this
-```bash
-WM_CLASS(STRING) = "umpv", "mpv"
-```
-if not, it will fail and mpvSockets.lua will work as it normally does and create a unique socket for that ppid.
+xprop can be used without manually clicking on windows if it is given a window
+id number. to get the window id xdotool is used. xdotool's search fucntion will
+return the window id number that matches the given pid. with that we've got all
+the info we need to determine if an instance of mpv was launched via umpv. grep
+for umpv and that's basically it. if the command is successful mpv will display
+an osd message stating tha umpv was detected. if the command fails then
+mpvSockets.lua will act as it normally does and create a unique socket for that
+instance of mpv.
 #### Waiting for file to load
-the above if statement will not work if it is run at launch. this is because mpv does not have a window id yet as it is only running as a process and needs time to create a window (espceially with umpv, idk why it take so long for the window to actually open...). this causes `xdotool search -pid $ppid` to fail no matter what. the if statement will always return false and it effectively becomes garbage. however, we can solve this by putting these commands in a fucntion and running that function when the file is loaded, like so:
+the above if statement will not work if it is run at launch. this is because
+mpv does not have a window id yet as it is only running as a process and needs
+time to create a window (espceially with umpv, idk why it take so long for the
+window to actually open...). this causes `xdotool search -pid $ppid` to fail no
+matter what. the if statement will always return false and it effectively
+becomes garbage. however, we can solve this by putting these commands in a
+fucntion and running that function when the file is loaded, like so:
 ```bash
 +mp.register_event("file-loaded", socket_later)
 ```
@@ -124,18 +122,32 @@ the if statement will not be run until the file is loaded. if the file is loaded
 i've also added the following
 ```bash
  function shutdown_handler()
-+    if os.execute("xdotool search -pid '"..ppid.."' | xargs -I '{}' xprop -id '{}' | grep umpv") then
++    if os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv") then
 +        os.remove(join_paths(tempDir, "mpvSockets/umpv_socket"))
 +    else
          os.remove(join_paths(tempDir, "mpvSockets", ppid))
 +    end
  end
 ```
-this basically does the same thing as before, checks to see if the window was created by umpv or mpv. if it was umpv then we remove /tmp/mpv/Sockets/umpv_socket. sometimes having that socket lying around has caused issues for me. if i have no umpv window open currently but did previously and that socket is still sitting there, then umpv will *sometimes* pipe that video to that socket which leads nowhere meaning no video ever opens. however, if we remove that socket each time we close a umpv window this problem disapears. this part removes either umpv_socket or the ppid socket depending on the WM_CLASS value.
+this basically does the same thing as before, checks to see if the window was
+created by umpv or mpv. if it was umpv then we remove
+/tmp/mpv/Sockets/umpv_socket. sometimes having that socket lying around has
+caused issues for me. if i have no umpv window open currently but did
+previously and that socket is still sitting there, then umpv will *sometimes*
+pipe that video to that socket which leads nowhere meaning no video ever opens.
+however, if we remove that socket each time we close a umpv window this problem
+disapears. this part removes either umpv_socket or the ppid socket depending on
+the WM_CLASS value.
 ```bash
 +        mp.osd_message("umpv detected")
 ```
-this line was useful for debugging. i am including it as i think it is the easiest way to let a user know of this script is working or not. if you launch a video through umpv but don't see this message when the file loads then something went wrong. if this script is broken for you please open an issue, i would like to make this as fool proof as possible. if you don't want this message popping up feel free to delete line 35 and you'll no longer see this message.
+this line was useful for debugging. i am including it as i think it is the
+easiest way to let a user know of this script is working or not. if you launch
+a video through umpv but don't see this message when the file loads then
+something went wrong. if this script is broken for you please open an issue, i
+would like to make this as fool proof as possible. if you don't want this
+message popping up feel free to delete line 35 and you'll no longer see this
+message.
 # Installation
 ## Linux
 1. download mpvSockets.lua and place it in $HOME/.config/mpv/scripts
@@ -159,7 +171,15 @@ and that's it...[kinda]( https://github.com/johndovern/mpvSockets-umpv#umpv)
 
 but then again windows users can't even use umpv so that sort of goes without saying
 ## disclaimers
-* right now if the directory `/tmp/mpvSockets` does not exist then videos launched through umpv, will not have a socket, full stop. ~~if mpv is launched on it's own then this script will create that directory, but (at least in my testing) no socket will actually be created, only the directory, which is somewhat odd to me. so as long as you launch mpv at least once then everything will work fine after that. as far as i can tell this is the only major issue currently present due to my modifications.~~ [fixed](https://github.com/johndovern/mpvSockets-umpv/commit/c3acf721ac3eab4601d7aca43f6d43812e47e3e3) i had the commands flipped causing mpv to set the socket before the dir was created. the issue with umpv is still present as umpv creates and sets the socket at launch.
+* right now if the directory `/tmp/mpvSockets` does not exist then videos
+  launched through umpv, will not have a socket, full stop.
+* ~~if mpv is
+  launched on it's own then this script will create that directory, but (at
+  least in my testing) no socket will actually be created, only the directory,
+  which is somewhat odd to me. so as long as you launch mpv at least once then
+  everything will work fine after that. as far as i can tell this is the only
+  major issue currently present due to my modifications.~~
+  [fixed](https://github.com/johndovern/mpvSockets-umpv/commit/c3acf721ac3eab4601d7aca43f6d43812e47e3e3)
 * as i mentioned above i do not think that hardcoding umpv to use `/tmp/mpvSockets/umpv_socket` is standard or the best way to do this. any better suggestions are happliy welcome.
 * i am not a programer, i just found a way to have my cake and eat it to. if you have a better way of solving this issue then please share it with me.
 # Usage, with Mpv's [JSON IPC](https://github.com/mpv-player/mpv/blob/master/DOCS/man/ipc.rst)

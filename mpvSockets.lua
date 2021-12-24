@@ -29,9 +29,9 @@ end
 ppid = utils.getpid()
 
 function socket_later()
-    if os.execute("xdotool search -pid '"..ppid.."' | xargs -I '{}' xprop -id '{}' | grep umpv") then
+    if os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv") then
         --nothing to do if true, as umpv has already created the socket
-	--comment out next line if you don't want confirmation
+        --comment out next line if you don't want confirmation
         mp.osd_message("umpv detected")
     else
         os.execute("mkdir " .. join_paths(tempDir, "mpvSockets") .. " 2>/dev/null")
