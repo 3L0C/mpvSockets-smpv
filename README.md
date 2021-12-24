@@ -172,7 +172,12 @@ and that's it...[kinda]( https://github.com/johndovern/mpvSockets-umpv#umpv)
 but then again windows users can't even use umpv so that sort of goes without saying
 ## disclaimers
 * right now if the directory `/tmp/mpvSockets` does not exist then videos
-  launched through umpv, will not have a socket, full stop.
+  launched through umpv, will not have a socket, full stop. this is the biggest
+  issue at present. if i get some free time i will adjust umpv to fix this
+  issue but at the moment i know zero python so we shall see. the workaround
+  for this issue is to launch mpv once after installing everything as described
+  above. mpvSockets.lua will create the directory and umpv can be used like
+  normal after that.
 * as i mentioned above i do not think that hardcoding umpv to use `/tmp/mpvSockets/umpv_socket` is standard or the best way to do this. any better suggestions are happliy welcome.
 * i am not a programer, i just found a way to have my cake and eat it to. if you have a better way of solving this issue then please share it with me.
 * ~~if mpv is
