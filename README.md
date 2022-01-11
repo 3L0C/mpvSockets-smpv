@@ -68,7 +68,8 @@ mpvSockets.lua has been modified as follows
 -mp.set_property("options/input-ipc-server", join_paths(tempDir, "mpvSockets", ppid))
 +
 +function socket_later()
-+    if os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv") then
++    local umpv = os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
++    if umpv == 0 then
 +        --nothing to do if true, as umpv has already created the socket
 +        --comment out next line if you don't want confirmation
 +        mp.osd_message("umpv detected")
@@ -81,7 +82,7 @@ mpvSockets.lua has been modified as follows
 +mp.register_event("file-loaded", socket_later)
 
  function shutdown_handler()
-+    if os.execute("xdotool search -pid '"..ppid.."' | xargs -I '{}' xprop -id '{}' | grep umpv") then
++    if umpv == 0 then
 +        os.remove(join_paths(tempDir, "mpvSockets/umpv_socket"))
 +    else
          os.remove(join_paths(tempDir, "mpvSockets", ppid))
@@ -94,8 +95,8 @@ there are two important changes
 1. mpvSockets.lua checks to see if umpv was used to launch mpv
 2. mpvSockets.lua does not do anything until your file is loaded
 #### umpv checking
-```bash
-+    if os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv") then
+```lua
++    local umpv = os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
 ```
 **this command uses [xdotool](https://github.com/jordansissel/xdotool), if you do not have it installed this script will be useless.**
 xprop can be used without manually clicking on windows if it is given a window
@@ -120,9 +121,10 @@ fucntion and running that function when the file is loaded, like so:
 the if statement will not be run until the file is loaded. if the file is loaded we most certainly have a window id which solves the aforementioned problem and everything [just werks](https://github.com/johndovern/mpvSockets-umpv#umpv)
 #### Niceties
 i've also added the following
-```bash
+```lua
  function shutdown_handler()
-+    if os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv") then
++    local umpv = os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
++    if umpv == 0 then
 +        os.remove(join_paths(tempDir, "mpvSockets/umpv_socket"))
 +    else
          os.remove(join_paths(tempDir, "mpvSockets", ppid))
