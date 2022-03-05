@@ -43,6 +43,7 @@ end
 mp.register_event("file-loaded", socket_later)
 
 function shutdown_handler()
+    local umpv = os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
     if umpv == 0 then
         os.remove(join_paths(tempDir, "mpvSockets/umpv_socket"))
     else
