@@ -68,7 +68,7 @@ mpvSockets.lua has been modified as follows
 -mp.set_property("options/input-ipc-server", join_paths(tempDir, "mpvSockets", ppid))
 +
 +function socket_later()
-+    local umpv = os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
++    local umpv = os.execute("xprop WM_CLASS -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
 +    if umpv == 0 then
 +        --nothing to do if true, as umpv has already created the socket
 +        --comment out next line if you don't want confirmation
@@ -82,6 +82,7 @@ mpvSockets.lua has been modified as follows
 +mp.register_event("file-loaded", socket_later)
 
  function shutdown_handler()
++    local umpv = os.execute("xprop WM_CLASS -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
 +    if umpv == 0 then
 +        os.remove(join_paths(tempDir, "mpvSockets/umpv_socket"))
 +    else
@@ -96,7 +97,7 @@ there are two important changes
 2. mpvSockets.lua does not do anything until your file is loaded
 #### umpv checking
 ```lua
-+    local umpv = os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
++    local umpv = os.execute("xprop WM_CLASS -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
 ```
 **this command uses [xdotool](https://github.com/jordansissel/xdotool), if you do not have it installed this script will be useless.**
 xprop can be used without manually clicking on windows if it is given a window
@@ -123,7 +124,7 @@ the if statement will not be run until the file is loaded. if the file is loaded
 i've also added the following
 ```lua
  function shutdown_handler()
-+    local umpv = os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
++    local umpv = os.execute("xprop WM_CLASS -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
 +    if umpv == 0 then
 +        os.remove(join_paths(tempDir, "mpvSockets/umpv_socket"))
 +    else
