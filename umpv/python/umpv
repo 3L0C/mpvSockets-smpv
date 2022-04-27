@@ -32,6 +32,7 @@ import socket
 import errno
 import subprocess
 import string
+import tempfile
 
 files = sys.argv[1:]
 
@@ -52,7 +53,9 @@ def make_abs(filename):
     return filename
 files = (make_abs(f) for f in files)
 
-SOCK = "/tmp/mpvSockets/umpv_socket"
+# SOCK = os.getenv("MPV_UMPV_SOCKET")
+SOCK = os.path.join(tempfile.gettempdir(), "mpvSockets/umpv_socket")
+# SOCK = "/tmp/mpvSockets/umpv_socket"
 
 sock = None
 try:
@@ -79,7 +82,8 @@ else:
     # Let mpv recreate socket if it doesn't already exist.
 
     opts = (os.getenv("MPV") or "mpv").split()
-+    opts.extend(["--no-terminal", "--force-window", "--input-ipc-server=", "--x11-name=umpv" + SOCK,
+    opts.extend(["--script-opts=mpvSockets-umpv=yes", "--no-terminal", "--force-window",
+    # opts.extend(["--script-opts=mpvSockets-socket=no", "--no-terminal", "--force-window", "--input-ipc-server=" + SOCK,
                  "--"])
     opts.extend(files)
 

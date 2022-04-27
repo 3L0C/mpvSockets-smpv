@@ -1,195 +1,173 @@
 # mpvSockets
-create one sockets per mpv instance (with the instance's process **ID** (PID), (**unique**)), instead of one socket for the last started instance
+By default this script will create one sockets per mpv instance (with the
+instance's process **ID** (PID), (**unique**)), instead of one socket for the
+last started instance.
 
-dangling sockets for crashed or killed instances is an issue,
-not sure if this script should handle/remove them or the clients/users, or both.
+Dangling sockets for crashed or killed instances is an issue, not sure if this
+script should handle/remove them or the clients/users, or both.
 
-# -umpv
-as described above mpvSockets was designed to create a socket for each unique instance of mpv
-which is great...if you don't use [umpv](https://github.com/mpv-player/mpv/blob/master/TOOLS/umpv)
-## The Issue
-1. umpv starts and creates a socket at $HOME/.umpv_socket which it tells mpv to use
-2. mpv is then started by umpv
-3. all lua scripts get loaded
-4. mpvSockets.lua says "lol no" and makes makes it so umpv is useless
+## Adding flexibility
+Having one socket per instance is very convenient, especially if you use
+something like these [mpv-socket](https://github.com/johndovern/mpv-sockets)
+scripts to communicate with a give instances of mpv. However, sometimes it is
+even better to have a socket or two that are dedicated to one thing.
 
-*or at least it used to*
-## tl;dr
-mpvSockets.lua now tests to see if umpv was used to launch mpv through a single if statement before it tries to create a new socket.
+[umpv](https://github.com/mpv-player/mpv/blob/master/TOOLS/umpv) is an example
+of when having a dedicated socket can be very useful. You can read more about
+it's advantages [below](## Usage with umpv). Previously mpvSockets was totally
+incompatible with umpv. This is no longer the case.
 
-[install](https://github.com/johndovern/mpvSockets-umpv#installation)
-## The solution
-### [umpv](https://github.com/mpv-player/mpv/blob/master/TOOLS/umpv)
-**forked and licensed under LGPLv2.1 (correct me if i am wrong) is a part of the offical mpv repo**
+Another example is a headless mpv socket for music or podcasts. Having a
+dedicated socket for music allows for easy communication and adding additional
+songs or podcasts to the running socket. This is also possible with this
+version of mpvSockets.
 
-i have made slight modifications shown here
-```python
---- umpv-old    2021-12-10 13:40:14.554428588 -0800
-+++ umpv-new    2021-12-10 13:41:35.881098073 -0800
-@@ -52,7 +52,7 @@
-     return filename
- files = (make_abs(f) for f in files)
+## What's the same?
+This is a fork of wis/mpvSockets so lets cover what is the same. At face value
+everything. This script does not change the default behavior of wis' original
+script. I only wish to add a bit of flexibility for users who are interested.
 
--SOCK = os.path.join(os.getenv("HOME"), ".umpv_socket")
-+SOCK = "/tmp/mpvSockets/umpv_socket"
+## What's different?
+The primary difference is the addition of script options and scanning for
+environment variables. Script options allow users to easily change the behavior
+of this script when launching mpv or to change it's default behavior outright.
 
- sock = None
- try:
-@@ -79,7 +79,7 @@
-     # Let mpv recreate socket if it doesn't already exist.
+Depending on the given option mpvSockets can run in 4 ways:
 
-     opts = (os.getenv("MPV") or "mpv").split()
--    opts.extend(["--no-terminal", "--force-window", "--input-ipc-server=" + SOCK,
-+    opts.extend(["--no-terminal", "--force-window", "--input-ipc-server=", "--x11-name=umpv" + SOCK,
-                  "--"])
-     opts.extend(files)
+  1. Create unique sockets for every instance (default)
+  2. Create a socket for umpv
+  3. Create a socket for music
+  4. Do nothing
+
+By using mpvSockets.conf (placed in ~/.config/mpv/script-opts or
+equivalent) you can configure the default behavior using the following
+settings.
+
+### Script-opts
+Supported script options and their default value
 ```
-the first change makes [other scripts](https://github.com/johndovern/mpvSockets-umpv#usage-with-mpvs-json-ipc) compatible. there may be a better solution than setting this as a hardcoded path but i don't know python or programming in general so please suggest a better way that gets the same result if you have one
-
-the second change is actually what enables us to solve this issue.
-
-`"--x11-name=umpv"`
-
-will set the WM_CLASS value of the opened window to:
-
-`WM_CLASS(STRING) = "umpv", "mpv"`
-
-without this the changes made in mpvSockets.lua will not work. **either make this change to umpv yourself or replace your old version with the one in this repo.**
-### mpvSockets.lua
-mpvSockets.lua has been modified as follows
-```lua
---- mpvSockets-old.lua      2021-12-10 13:35:18.571085019 -0800
-+++ mpvSockets-new.lua 2021-12-10 13:35:34.534418903 -0800
-@@ -27,10 +27,26 @@
- end
-
- ppid = utils.getpid()
--os.execute("mkdir " .. join_paths(tempDir, "mpvSockets") .. " 2>/dev/null")
--mp.set_property("options/input-ipc-server", join_paths(tempDir, "mpvSockets", ppid))
-+
-+function socket_later()
-+    local umpv = os.execute("xprop WM_CLASS -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
-+    if umpv == 0 then
-+        --nothing to do if true, as umpv has already created the socket
-+        --comment out next line if you don't want confirmation
-+        mp.osd_message("umpv detected")
-+    else
-+        mp.set_property("options/input-ipc-server", join_paths(tempDir, "mpvSockets", ppid))
-+        os.execute("mkdir " .. join_paths(tempDir, "mpvSockets") .. " 2>/dev/null")
-+    end
-+end
-+
-+mp.register_event("file-loaded", socket_later)
-
- function shutdown_handler()
-+    local umpv = os.execute("xprop WM_CLASS -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
-+    if umpv == 0 then
-+        os.remove(join_paths(tempDir, "mpvSockets/umpv_socket"))
-+    else
-         os.remove(join_paths(tempDir, "mpvSockets", ppid))
-+    end
- end
-+
- mp.register_event("shutdown", shutdown_handler)
+enabled=yes
+pid=yes
+umpv=no
+music=no
 ```
-there are two important changes
-1. mpvSockets.lua checks to see if umpv was used to launch mpv
-2. mpvSockets.lua does not do anything until your file is loaded
-#### umpv checking
-```lua
-+    local umpv = os.execute("xprop WM_CLASS -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
+
+#### `enabled`
+Use `--script-opts=mpvSockets-enabled=no` to disable this script. You can set `enabled=no` in mpvSockets.conf to disable this script by default. If you do this you must pass `--script-opts=mpvSockets-enabled=yes,mpvSockets-umpv=yes` to enable the script and then to tell the script to create a umpv socket.
+
+#### `pid`
+If your mpvSockets.conf is set to the default values you can use
+`--script-opts=mpvSockets-pid=no` to disable this script and create no
+socket for an instance of mpv. Setting `pid=no` in mpvSockets.conf is
+akin to setting `enabled=no` but without the hassle of passing two
+script-opts arguments when you want to enable this script. For that
+reason you should probably leave `enabled=yes` and only set `pid=no` if
+you want to disable this script by default.
+
+#### `umpv`
+Use `--script-opts=mpvSockets-umpv=yes` to create a socket at `$MPV_UMPV_SOCKET`
+by default or at `$tmpDir/mpvSockets/umpv_socket`. Read more about
+[environment variables](### Environment Variables) below.
+
+#### `music`
+Use `--script-opts=mpvSockets-music=yes` to create a socket at
+`$MPV_MUSIC_SOCKET` by default or at `$tmpDir/mpvSockets/music_socket`.
+Read more about [environment variables](### Environment Variables) below.
+
+#### **Note for changing default behavior**
+As far as I am aware mpv does not natively support single instance mode.
+For this reason it is not advisable to set either `music` or `umpv` to
+`yes` in mpvSockets.conf. You should only change `pid` or `enabled` from
+`yes` to `no` if you only want this script to take effect when explicitly
+enabled from the command line.
+
+### Environment Variables
+I have updated this script to make use of the following environment variables
+
+#### `$MPV_SOCKET_DIR`
+This should be set to some directory that you have permission to write
+to. If it is not found it will be set to `$socketDir/mpvSockets` where
+`$socketDir` is the output of the function `get_temp_path`. On my system
+that is /tmp but it may be different on yours.
+
+#### `$MPV_UMPV_SOCKET` & `$MPV_MUSIC_SOCKET`
+These should be set as a full path to the desired socket. Something like
+`/home/name/.tmp/umpv_socket` or `/home/name/.tmp/music_socket`. The
+parent directory of the socket should actually exists and you need to
+have read and write access to the directory. If this variable is set the
+script will not necessarily create the parent directory for you. For best
+compatibility the parent directory should be set to the same thing as
+`$MPV_SOCKET_DIR` or it's default. This will ensure that the directory is
+created and available as this script always creates a default socket
+directory.
+
+If the necessary environment variable is not set the default location
+will be set to `$MPV_SOCKET_DIR/umpv_socket` or
+`$MPV_SOCKET_DIR/music_socket`. Refer to the entry above if
+`$MPV_SOCKET_DIR` is unset.
+
+## Usage with umpv
+If you are unfamiliar with umpv you can check out the original or an
+alternative here:
+
+  - [the original version](https://github.com/mpv-player/mpv/blob/master/TOOLS/umpv)
+  - [modified original](umpv/python/umpv) compatible with mpvSockets
+  - [one written in sh](umpv/sh/umpv) compatible with mpvSockets
+
+I think the original explains what umpv does best:
+
 ```
-**this command uses [xdotool](https://github.com/jordansissel/xdotool), if you do not have it installed this script will be useless.**
-xprop can be used without manually clicking on windows if it is given a window
-id number. to get the window id xdotool is used. xdotool's search fucntion will
-return the window id number that matches the given pid. with that we've got all
-the info we need to determine if an instance of mpv was launched via umpv. grep
-for umpv and that's basically it. if the command is successful mpv will display
-an osd message stating tha umpv was detected. if the command fails then
-mpvSockets.lua will act as it normally does and create a unique socket for that
-instance of mpv.
-#### Waiting for file to load
-the above if statement will not work if it is run at launch. this is because
-mpv does not have a window id yet as it is only running as a process and needs
-time to create a window (espceially with umpv, idk why it take so long for the
-window to actually open...). this causes `xdotool search -pid $ppid` to fail no
-matter what. the if statement will always return false and it effectively
-becomes garbage. however, we can solve this by putting these commands in a
-fucntion and running that function when the file is loaded, like so:
-```bash
-+mp.register_event("file-loaded", socket_later)
+This script emulates "unique application" functionality on Linux. When
+starting playback with this script, it will try to reuse an already
+running instance of mpv (but only if that was started with umpv). Other
+mpv instances (not started by umpv) are ignored, and the script doesn't
+know about them.
 ```
-the if statement will not be run until the file is loaded. if the file is loaded we most certainly have a window id which solves the aforementioned problem and everything [just werks](https://github.com/johndovern/mpvSockets-umpv#umpv)
-#### Niceties
-i've also added the following
-```lua
- function shutdown_handler()
-+    local umpv = os.execute("xprop WM_CLASS -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
-+    if umpv == 0 then
-+        os.remove(join_paths(tempDir, "mpvSockets/umpv_socket"))
-+    else
-         os.remove(join_paths(tempDir, "mpvSockets", ppid))
-+    end
- end
-```
-this basically does the same thing as before, checks to see if the window was
-created by umpv or mpv. if it was umpv then we remove
-/tmp/mpv/Sockets/umpv_socket. sometimes having that socket lying around has
-caused issues for me. if i have no umpv window open currently but did
-previously and that socket is still sitting there, then umpv will *sometimes*
-pipe that video to that socket which leads nowhere meaning no video ever opens.
-however, if we remove that socket each time we close a umpv window this problem
-disapears. this part removes either umpv_socket or the ppid socket depending on
-the WM_CLASS value.
-```bash
-+        mp.osd_message("umpv detected")
-```
-this line was useful for debugging. i am including it as i think it is the
-easiest way to let a user know of this script is working or not. if you launch
-a video through umpv but don't see this message when the file loads then
-something went wrong. if this script is broken for you please open an issue, i
-would like to make this as fool proof as possible. if you don't want this
-message popping up feel free to delete line 35 and you'll no longer see this
-message.
+
+This is something that is totally incompatible with the original version
+of mpvSockets. However, with the added script-opts umpv and mpvSockets
+can work together very nicely.
+
+### umpv tl;dr
+You should be able to use the modified version of of the original located
+[here](umpv/python/umpv). Please see the installation instructions
+[here](umpv/README.md#Installation) if you need them. Unless you have
+`$MPV_UMPV_SOCKET` set as an environment variable this should just work
+with mpvSockets out of the box.
+
+If you have any issues please read the [README.md](umpv) in the umpv directory as
+it covers a lot of information about necessary changes made to the original
+umpv script; as well as, information on an alternative written in sh.
+
+## Usage with mpv-music
+mpv-music as an idea is basically everything that umpv is but
+__**without**__ a window/terminal. Headless mpv essentially. Couple that
+with [some bash scripts](https://github.com/johndovern/mpv-sockets) and
+you've got a nice little music player.
+
+The [mpv-music](mpv-music) directory provides two scripts the same way
+that the umpv directory does. One written in python and one written in
+sh. Please refer to the [README.md](mpv-music) there for more
+information as well as usage.
+
 # Installation
 ## Linux
-1. download mpvSockets.lua and place it in $HOME/.config/mpv/scripts
-``` bash
-curl "https://raw.githubusercontent.com/johndovern/mpvSockets/master/mpvSockets.lua" --create-dirs -o "$Your_Mpv_Scripts_Directory_Location/mpvSockets.lua"
-```
-if you're on Linux, most likely the location is `~/.config/mpv/scripts`, so run this before:
-``` bash
-$Your_Mpv_Scripts_Directory_Location=$HOME/config/mpv/scripts
-```
-2. install [xdotool](https://github.com/jordansissel/xdotool) if you do not have it installed already
-3. download umpv from this repo, chmod +x umpv and place it in your $PATH [*or modify your existing version*](https://github.com/johndovern/mpvSockets-umpv#umpv)
-```bash
-curl -O "https://raw.githubusercontent.com/johndovern/mpvSockets-umpv/master/umpv"
-chmod +x umpv
-echo $PATH
-#place in any of the listed locations
-```
-and that's it...[kinda]( https://github.com/johndovern/mpvSockets-umpv#umpv)
-## Note - this is not meant for windows
+Download mpvSockets.lua and place it in $HOME/.config/mpv/scripts
 
-but then again windows users can't even use umpv so that sort of goes without saying
-## disclaimers
-* right now if the directory `/tmp/mpvSockets` does not exist then videos
-  launched through umpv, will not have a socket, full stop. this is the biggest
-  issue at present. if i get some free time i will adjust umpv to fix this
-  issue but at the moment i know zero python so we shall see. the workaround
-  for this issue is to launch mpv once after installing everything as described
-  above. mpvSockets.lua will create the directory and umpv can be used like
-  normal after that.
-* as i mentioned above i do not think that hardcoding umpv to use `/tmp/mpvSockets/umpv_socket` is standard or the best way to do this. any better suggestions are happliy welcome.
-* i am not a programer, i just found a way to have my cake and eat it to. if you have a better way of solving this issue then please share it with me.
-* ~~if mpv is
-  launched on it's own then this script will create that directory, but (at
-  least in my testing) no socket will actually be created, only the directory,
-  which is somewhat odd to me. so as long as you launch mpv at least once then
-  everything will work fine after that. as far as i can tell this is the only
-  major issue currently present due to my modifications.~~
-  [fixed](https://github.com/johndovern/mpvSockets-umpv/commit/c3acf721ac3eab4601d7aca43f6d43812e47e3e3)
+``` bash
+$mpv_scripts="$HOME/.config/mpv/scripts"
+curl -JL "https://github.com/johndovern/mpvSockets/raw/master/mpvSockets.lua" --create-dirs -o "$mpv_scripts/mpvSockets.lua"
+```
+
+Refer to the above for usage with with umpv etc.
+
+## Note - this is not meant for windows
+Windows and pipes don't go together so unless there is some workaround that I
+am unaware of most of the added functionality and flexibility that this script
+provides does nothing for windows users.
+
+Please correct me if this changes.
+
 # Usage, with Mpv's [JSON IPC](https://github.com/mpv-player/mpv/blob/master/DOCS/man/ipc.rst)
 ## Linux / unixes (unix sockets):
 a script that pauses all running mpv instances:

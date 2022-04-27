@@ -1,12 +1,20 @@
 -- mpvSockets, one socket per instance, removes socket on exit
-
+local mp = require 'mp'
+local options = require 'mp.options'
 local utils = require 'mp.utils'
+
+local o = {
+  enabled = "yes",
+  pid     = "yes",
+  music   = "no",
+  umpv    = "no",
+}
+options.read_options(o, "mpvSockets")
 
 local function get_temp_path()
     local directory_seperator = package.config:match("([^\n]*)\n?")
     local example_temp_file_path = os.tmpname()
 
-    -- remove generated temp file
     pcall(os.remove, example_temp_file_path)
 
     local seperator_idx = example_temp_file_path:reverse():find(directory_seperator)
@@ -14,8 +22,6 @@ local function get_temp_path()
 
     return example_temp_file_path:sub(1, temp_path_length)
 end
-
-tempDir = get_temp_path()
 
 function join_paths(...)
     local arg={...}
@@ -26,29 +32,41 @@ function join_paths(...)
     return path;
 end
 
-ppid = utils.getpid()
+function set_vars()
+    socketDir = os.getenv("MPV_SOCKET_DIR")
 
-function socket_later()
-    local umpv = os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
-    if umpv == 0 then
-        --nothing to do if true, as umpv has already created the socket
-        --comment out next line if you don't want confirmation
-        mp.osd_message("umpv detected")
-    else
-        os.execute("mkdir " .. join_paths(tempDir, "mpvSockets") .. " 2>/dev/null")
-        mp.set_property("options/input-ipc-server", join_paths(tempDir, "mpvSockets", ppid))
+    if not socketDir then
+        socketDir = join_paths(get_temp_path(), "mpvSockets")
+    end
+
+    if o.umpv == "yes" then
+        theSocket = os.getenv("MPV_UMPV_SOCKET")
+        if not theSocket then
+            theSocket = join_paths(socketDir, "umpv_socket")
+        end
+    elseif o.music == "yes" then
+        theSocket = os.getenv("MPV_MUSIC_SOCKET")
+        if not theSocket then
+            theSocket = join_paths(socketDir, "music_socket")
+        end
+    elseif o.pid == "yes" then
+        ppid = utils.getpid()
+        theSocket = join_paths(socketDir, ppid)
     end
 end
 
-mp.register_event("file-loaded", socket_later)
+function create_socket()
+    if o.enabled == "no" then return end
+    set_vars()
+    os.execute("mkdir " .. socketDir .. " 2>/dev/null")
+    mp.set_property("options/input-ipc-server", theSocket)
+end
 
 function shutdown_handler()
-    local umpv = os.execute("xprop -id $(xdotool search -pid " .. ppid .. ") | grep umpv")
-    if umpv == 0 then
-        os.remove(join_paths(tempDir, "mpvSockets/umpv_socket"))
-    else
-        os.remove(join_paths(tempDir, "mpvSockets", ppid))
-    end
+    if o.enabled == "no" then return end
+    os.remove(theSocket)
 end
+
+create_socket()
 
 mp.register_event("shutdown", shutdown_handler)
