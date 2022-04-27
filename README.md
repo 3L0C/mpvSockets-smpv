@@ -9,12 +9,12 @@ script should handle/remove them or the clients/users, or both.
 ## Adding flexibility
 Having one socket per instance is very convenient, especially if you use
 something like these [mpv-socket](https://github.com/johndovern/mpv-sockets)
-scripts to communicate with a give instances of mpv. However, sometimes it is
+scripts to communicate with a given instances of mpv. However, sometimes it is
 even better to have a socket or two that are dedicated to one thing.
 
 [umpv](https://github.com/mpv-player/mpv/blob/master/TOOLS/umpv) is an example
 of when having a dedicated socket can be very useful. You can read more about
-it's advantages [below](## Usage with umpv). Previously mpvSockets was totally
+it's advantages [here](umpv). Previously mpvSockets was totally
 incompatible with umpv. This is no longer the case.
 
 Another example is a headless mpv socket for music or podcasts. Having a
@@ -72,9 +72,9 @@ by default or at `$tmpDir/mpvSockets/umpv_socket`. Read more about
 #### `music`
 Use `--script-opts=mpvSockets-music=yes` to create a socket at
 `$MPV_MUSIC_SOCKET` by default or at `$tmpDir/mpvSockets/music_socket`.
-Read more about [environment variables](### Environment Variables) below.
+Read more about [environment variables](### Environment) below.
 
-#### **Note for changing default behavior**
+#### Note for changing default behavior
 As far as I am aware mpv does not natively support single instance mode.
 For this reason it is not advisable to set either `music` or `umpv` to
 `yes` in mpvSockets.conf. You should only change `pid` or `enabled` from
