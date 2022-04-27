@@ -66,13 +66,13 @@ you want to disable this script by default.
 
 #### `umpv`
 Use `--script-opts=mpvSockets-umpv=yes` to create a socket at `$MPV_UMPV_SOCKET`
-by default or at `$tmpDir/mpvSockets/umpv_socket`. Read more about
-[environment variables](### Environment Variables) below.
+by default or at `$socketDir/mpvSockets/umpv_socket`. Read more about
+[environment variables](#environment-variables) below.
 
 #### `music`
 Use `--script-opts=mpvSockets-music=yes` to create a socket at
-`$MPV_MUSIC_SOCKET` by default or at `$tmpDir/mpvSockets/music_socket`.
-Read more about [environment variables](### Environment-Variables) below.
+`$MPV_MUSIC_SOCKET` by default or at `$socketDir/mpvSockets/music_socket`.
+Read more about [environment variables](#environment-variables) below.
 
 #### Note for changing default behavior
 As far as I am aware mpv does not natively support single instance mode.
@@ -81,7 +81,7 @@ For this reason it is not advisable to set either `music` or `umpv` to
 `yes` to `no` if you only want this script to take effect when explicitly
 enabled from the command line.
 
-### Environment Variables
+### Environment-Variables
 I have updated this script to make use of the following environment variables
 
 #### `$MPV_SOCKET_DIR`
@@ -129,13 +129,13 @@ of mpvSockets. However, with the added script-opts umpv and mpvSockets
 can work together very nicely.
 
 ### umpv tl;dr
-You should be able to use the modified version of of the original located
+You should be able to use the modified version of the original located
 [here](umpv/python/umpv). Please see the installation instructions
 [here](umpv/README.md#Installation) if you need them. Unless you have
 `$MPV_UMPV_SOCKET` set as an environment variable this should just work
 with mpvSockets out of the box.
 
-If you have any issues please read the [README.md](umpv) in the umpv directory as
+If you have any issues please read the [README.md](umpv#readme) in the umpv directory as
 it covers a lot of information about necessary changes made to the original
 umpv script; as well as, information on an alternative written in sh.
 
@@ -147,7 +147,7 @@ you've got a nice little music player.
 
 The [mpv-music](mpv-music) directory provides two scripts the same way
 that the umpv directory does. One written in python and one written in
-sh. Please refer to the [README.md](mpv-music) there for more
+sh. Please refer to the [README.md](mpv-music#readme) there for more
 information as well as usage.
 
 # Installation
