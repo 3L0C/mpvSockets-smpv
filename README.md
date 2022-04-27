@@ -72,7 +72,7 @@ by default or at `$tmpDir/mpvSockets/umpv_socket`. Read more about
 #### `music`
 Use `--script-opts=mpvSockets-music=yes` to create a socket at
 `$MPV_MUSIC_SOCKET` by default or at `$tmpDir/mpvSockets/music_socket`.
-Read more about [environment variables](### Environment) below.
+Read more about [environment variables](### Environment-Variables) below.
 
 #### Note for changing default behavior
 As far as I am aware mpv does not natively support single instance mode.
