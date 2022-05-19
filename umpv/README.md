@@ -24,8 +24,7 @@ instance. If you use an extension like
 [tridactly](https://github.com/tridactyl/tridactyl) you can easily open or add
 files to an instance of mpv attached to the umpv_socket.
 
-There are some other benefits as well that mostly come into play if you use the
-above mentioned bash scripts to interact with mpv via it's socket.
+There are some other benefits as well that mostly come into play if you use something similar to [these](https://github.com/johndovern/mpv-sockets) bash scripts to interact with mpv via it's socket.
 
 ## mpvSockets compatibility with original umpv
 This version of mpvSockets is not compatible with the original version of
@@ -62,15 +61,16 @@ These are the necessary changes made to the original.
 ```
 
 The original umpv script sets the default socket to `$HOME/.umpv_socket` which
-is not the default for mpvSockets. However, we can get your tmpDir with the
+is not the default for mpvSockets. However, we can get your temp dir with the
 tempfile module and join that with the default path `mpvSockets/umpv_socket`.
 This should be the same location that mpvSockets uses if you do not have
 `$MPV_SOCKET_DIR` or `$MPV_UMPV_SOCKET` set. If this is not the case please
-open an issue as I would like to see what's going wrong. If you have the
-`$MPV_UMPV_SOCKET` environment variable set you can set SOCK to that value.
-This is the most compatible option between umpv and mpvSockets. If Neither of
-these settings is working, then just hard code SOCK to the same location that
-mpvSockets is trying to use.
+open an issue as I would like to see what's going wrong.
+
+If you have the `$MPV_UMPV_SOCKET` environment variable set you can set SOCK to
+that value. This is the most compatible option between umpv and mpvSockets. If
+Neither of these settings is working, then just hard code SOCK to the same
+location that mpvSockets is trying to use.
 
 ```python
 @@ -79,7 +82,8 @@
@@ -88,10 +88,12 @@ The original umpv script created an input-ipc-server for us. However, this is
 not necessary when passing `--script-opts=mpvSockets-umpv=yes` as mpvSockets
 will create this socket. If you prefer to have umpv create the socket you can
 use the commented out command which creates a socket and tells mpvSockets to
-ignore this instance. There is a modified version of umpv in this repo which is
-configured with the changes shown above. It also includes the commented out
-alternative ways of using this script in order of greatest compatibility between
-umpv and mpvSockets.
+ignore this instance.
+
+There is a modified version of umpv in this repo which is configured with the
+changes shown above. It also includes the commented out alternative ways of
+using this script in order of greatest compatibility between umpv and
+mpvSockets.
 
 ## umpv written in sh
 ### Added feature
@@ -108,10 +110,10 @@ mpv to go to the next file and also unpause mpv.
 While both scripts are designed to work with mpvSockets there are some points
 to note.
 
-You can only pass files and urls as arguments to both versions of umpv found
+- You can only pass files and urls as arguments to both versions of umpv found
 here. Both versions take multiple files or urls as arguments.
 
-Neither version creates a socket. That job is left to mpvSockets. However, to
+- Neither version creates a socket. That job is left to mpvSockets. However, to
 add files to an instance of mpv we must know what socket it is connected to.
 The sh version defaults to using all the same environment variables that
 mpvSockets also attempts to use. If you have these unset the assumed location
@@ -120,12 +122,12 @@ SOCKET variable within the script, or export your desired location via the
 `$MPV_UMPV_SOCKET` variable by adding it to your `.zprofile` or `.bashrc` or
 whatever you use.
 
-I'm not certain but I believe the python version is 100% independent of
+- I'm not certain but I believe the python version is 100% independent of
 external programs. That is not the case for the sh version. The sh version
 requires you to have [socat](http://www.dest-unreach.org/socat/) installed. It
 should be in your distro's repo.
 
-The arguments passed to mpv by the sh version are not the same as the python
+- The arguments passed to mpv by the sh version are not the same as the python
 version. These are the arguments passed by both scripts
 
 ```
