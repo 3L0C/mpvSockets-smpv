@@ -23,48 +23,48 @@ local function get_temp_path()
     return example_temp_file_path:sub(1, temp_path_length)
 end
 
-function join_paths(...)
+local function join_paths(...)
     local arg={...}
-    path = ""
+    local path = ""
     for i,v in ipairs(arg) do
         path = utils.join_path(path, tostring(v))
     end
     return path;
 end
 
-function set_vars()
-    socketDir = os.getenv("MPV_SOCKET_DIR")
+local function set_vars()
+    SocketDir = os.getenv("MPV_SOCKET_DIR")
 
-    if not socketDir then
-        socketDir = join_paths(get_temp_path(), "mpvSockets")
+    if not SocketDir then
+        SocketDir = join_paths(get_temp_path(), "mpvSockets")
     end
 
     if o.umpv == "yes" then
-        theSocket = os.getenv("MPV_UMPV_SOCKET")
-        if not theSocket then
-            theSocket = join_paths(socketDir, "umpv_socket")
+        TheSocket = os.getenv("MPV_UMPV_SOCKET")
+        if not TheSocket then
+            TheSocket = join_paths(SocketDir, "umpv_socket")
         end
     elseif o.music == "yes" then
-        theSocket = os.getenv("MPV_MUSIC_SOCKET")
-        if not theSocket then
-            theSocket = join_paths(socketDir, "music_socket")
+        TheSocket = os.getenv("MPV_MUSIC_SOCKET")
+        if not TheSocket then
+            TheSocket = join_paths(SocketDir, "music_socket")
         end
     elseif o.pid == "yes" then
-        ppid = utils.getpid()
-        theSocket = join_paths(socketDir, ppid)
+        local ppid = utils.getpid()
+        TheSocket = join_paths(SocketDir, string.format("%010d", ppid))
     end
 end
 
-function create_socket()
+local function create_socket()
     if o.enabled == "no" then return end
     set_vars()
-    os.execute("mkdir " .. socketDir .. " 2>/dev/null")
-    mp.set_property("options/input-ipc-server", theSocket)
+    os.execute("mkdir " .. SocketDir .. " 2>/dev/null")
+    mp.set_property("options/input-ipc-server", TheSocket)
 end
 
-function shutdown_handler()
+local function shutdown_handler()
     if o.enabled == "no" then return end
-    os.remove(theSocket)
+    os.remove(TheSocket)
 end
 
 create_socket()
