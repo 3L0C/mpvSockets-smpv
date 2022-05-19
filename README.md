@@ -1,5 +1,5 @@
 # mpvSockets
-By default this script will create one sockets per mpv instance (with the
+By default this script will create one socket per mpv instance (with the
 instance's process **ID** (PID), (**unique**)), instead of one socket for the
 last started instance.
 
@@ -39,7 +39,7 @@ Depending on the given option mpvSockets can run in 4 ways:
   3. Create a socket for music
   4. Do nothing
 
-By using mpvSockets.conf (placed in ~/.config/mpv/script-opts or
+By using `mpvSockets`.conf (placed in `~/.config/mpv/script-opts` or
 equivalent) you can configure the default behavior using the following
 settings.
 
@@ -66,12 +66,12 @@ you want to disable this script by default.
 
 #### `umpv`
 Use `--script-opts=mpvSockets-umpv=yes` to create a socket at `$MPV_UMPV_SOCKET`
-by default or at `$socketDir/mpvSockets/umpv_socket`. Read more about
+by default or at `$SocketDir/mpvSockets/umpv_socket`. Read more about
 [environment variables](#environment-variables) below.
 
 #### `music`
 Use `--script-opts=mpvSockets-music=yes` to create a socket at
-`$MPV_MUSIC_SOCKET` by default or at `$socketDir/mpvSockets/music_socket`.
+`$MPV_MUSIC_SOCKET` by default or at `$SocketDir/mpvSockets/music_socket`.
 Read more about [environment variables](#environment-variables) below.
 
 #### Note for changing default behavior
@@ -86,29 +86,42 @@ I have updated this script to make use of the following environment variables
 
 #### `$MPV_SOCKET_DIR`
 This should be set to some directory that you have permission to write
-to. If it is not found it will be set to `$socketDir/mpvSockets` where
-`$socketDir` is the output of the function `get_temp_path`. On my system
+to. If it is not found it will be set to `$SocketDir/mpvSockets` where
+`$SocketDir` is the output of the function `get_temp_path`. On my system
 that is /tmp but it may be different on yours.
 
 #### `$MPV_UMPV_SOCKET` & `$MPV_MUSIC_SOCKET`
-These should be set as a full path to the desired socket. Something like
-`/home/name/.tmp/umpv_socket` or `/home/name/.tmp/music_socket`. The
-parent directory of the socket should actually exists and you need to
-have read and write access to the directory. If this variable is set the
-script will not necessarily create the parent directory for you. For best
-compatibility the parent directory should be set to the same thing as
-`$MPV_SOCKET_DIR` or it's default. This will ensure that the directory is
-created and available as this script always creates a default socket
-directory.
+These should be set as a full path to the desired socket. Something like:
+
+  `/home/name/.tmp/umpv_socket`
+
+or
+
+  `/home/name/.tmp/music_socket`
+
+The parent directory of the socket should actually exists and you need to
+have read and write access to the directory.
+
+If this variable is set the script will not necessarily create the parent
+directory for you. For best compatibility the parent directory should be set to
+the same thing as `$MPV_SOCKET_DIR` or it's default. This will ensure that the
+directory is created and available as this script always creates a default
+socket directory.
 
 If the necessary environment variable is not set the default location
-will be set to `$MPV_SOCKET_DIR/umpv_socket` or
-`$MPV_SOCKET_DIR/music_socket`. Refer to the entry above if
-`$MPV_SOCKET_DIR` is unset.
+will be set to
+
+  `$MPV_SOCKET_DIR/umpv_socket`
+
+or
+
+  `$MPV_SOCKET_DIR/music_socket`
+
+Refer to the entry above if `$MPV_SOCKET_DIR` is unset.
 
 ## Usage with umpv
 If you are unfamiliar with umpv you can check out the original or an
-alternative here:
+alternative at one of these locations:
 
   - [the original version](https://github.com/mpv-player/mpv/blob/master/TOOLS/umpv)
   - [modified original](umpv/python/umpv) compatible with mpvSockets
@@ -177,6 +190,7 @@ bash:
 for i in $(ls /tmp/mpvSockets/*); do
 	echo '{ "command": ["set_property", "pause", true] }' | socat - "$i";
 done
-# Socat  is  a  command  line based utility that establishes two bidirec-tional byte streams  and	 transfers  data  between  them.
+# Socat is a command line based utility that establishes two bidirec-tional
+# byte streams and transfers data between them.
 # available on Linux and FreeBSD, propably most unixes. you can also use
 ```
