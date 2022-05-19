@@ -153,7 +153,7 @@ echo "$PATH"
 # Place in desired directory
 ```
 
-## umpv in bash
+## umpv in sh
 
 ```bash
 curl -LJO "https://github.com/johndovern/mpvSockets/raw/master/umpv/sh/umpv" && chmod a+x umpv
