@@ -50,8 +50,7 @@ local function set_vars()
             TheSocket = join_paths(SocketDir, "music_socket")
         end
     elseif o.pid == "yes" then
-        local ppid = utils.getpid()
-        TheSocket = join_paths(SocketDir, string.format("%010d", ppid))
+        TheSocket = join_paths(SocketDir, os.time(os.date("!*t")))
     end
 end
 
