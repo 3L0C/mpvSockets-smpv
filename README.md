@@ -1,6 +1,6 @@
 # mpvSockets
 By default this script will create one socket per mpv instance (with the
-instance's process **ID** (PID), (**unique**)), instead of one socket for the
+instance's unix time as the name), instead of one socket for the
 last started instance.
 
 Dangling sockets for crashed or killed instances is an issue, not sure if this
