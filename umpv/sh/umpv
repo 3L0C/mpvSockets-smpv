@@ -3,38 +3,30 @@
 SOCKET="${MPV_UMPV_SOCKET:-${MPV_SOCKET_DIR:-/tmp/mpvSockets}/umpv_socket}"
 
 mpv_communicate() {
-  echo "${@}" | socat - "$SOCKET"
+  echo "${@}" | socat - "${SOCKET}"
 }
 
-while :; do
-  if [ $# -gt 0 ]; then
-    case "$1" in
-      *)
-        if [ -S "${SOCKET}" ]; then
-          mpv_communicate \
-            '{ "command": ["loadfile", "'"$1"'", "append-play"] }' >/dev/null 2>&1 && \
-            notify-send "Video Added" "$1"
-            if mpv_communicate  '{ "command": ["get_property", "eof-reached"] }' | grep -q ":true" >/dev/null 2>&1; then
-              mpv_communicate '{ "command": ["playlist-next"] }'
-              sleep 0.5
-              mpv_communicate 'cycle pause'
-              sleep 5
-            fi
-          shift
-        else
-          mpv --idle=yes \
-            --script-opts=mpvSockets-umpv=yes \
-            --loop-playlist=no \
-            --keep-open=yes "$1" >/dev/null 2>&1 &
-          shift
-          if [ $# -gt 0 ]; then
-            sleep 20
-          fi
+if [ -S "${SOCKET}" ]; then
+  while :; do
+    if [ $# -gt 0 ]; then
+      mpv_communicate \
+        '{ "command": ["loadfile", "'"${1}"'", "append-play"] }' >/dev/null 2>&1 && \
+        notify-send "Video Added" "${1}"
+        if mpv_communicate  '{ "command": ["get_property", "eof-reached"] }' | grep -q ":true" >/dev/null 2>&1; then
+          mpv_communicate '{ "command": ["playlist-next"] }'
+          sleep 0.5
+          mpv_communicate 'cycle pause'
+          sleep 5
         fi
-        ;;
-    esac
-  else
-    break
-  fi
-done
+      shift
+    else
+      break
+    fi
+  done
+else
+  mpv --idle=yes \
+    --script-opts=mpvSockets-umpv=yes \
+    --loop-playlist=no \
+    --keep-open=yes "${@}" >/dev/null 2>&1 &
+fi
 exit
