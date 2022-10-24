@@ -58,6 +58,7 @@ local function create_socket()
     if o.enabled == "no" then return end
     set_vars()
     os.execute("mkdir " .. SocketDir .. " 2>/dev/null")
+    os.execute("chmod 700 " .. SocketDir .. " 2>/dev/null")
     mp.set_property("options/input-ipc-server", TheSocket)
 end
 
