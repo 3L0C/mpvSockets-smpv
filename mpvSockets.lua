@@ -31,6 +31,10 @@ local function join_paths(...)
 end
 
 local function set_vars()
+    if o.socket == nil or o.socket == '' then
+        o.socket = "pid"
+    end
+
     SocketDir = os.getenv("MPV_SOCKET_DIR")
 
     if not SocketDir then
