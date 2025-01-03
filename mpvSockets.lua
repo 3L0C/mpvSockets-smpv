@@ -5,9 +5,7 @@ local utils = require 'mp.utils'
 
 local o = {
   enabled = "yes",
-  pid     = "yes",
-  music   = "no",
-  umpv    = "no",
+  socket  = "pid",
 }
 options.read_options(o, "mpvSockets")
 
@@ -39,18 +37,13 @@ local function set_vars()
         SocketDir = join_paths(get_temp_path(), "mpvSockets")
     end
 
-    if o.umpv == "yes" then
-        TheSocket = os.getenv("MPV_UMPV_SOCKET")
-        if not TheSocket then
-            TheSocket = join_paths(SocketDir, "umpv_socket")
-        end
-    elseif o.music == "yes" then
-        TheSocket = os.getenv("MPV_MUSIC_SOCKET")
-        if not TheSocket then
-            TheSocket = join_paths(SocketDir, "music_socket")
-        end
-    elseif o.pid == "yes" then
+    if o.socket == "pid" then
         TheSocket = join_paths(SocketDir, os.time(os.date("!*t")))
+    else
+        TheSocket = os.getenv("MPV_" .. string.upper(o.socket) .. "_SOCKET")
+        if not TheSocket then
+            TheSocket = join_paths(SocketDir, o.socket)
+        end
     end
 end
 
