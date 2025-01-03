@@ -55,15 +55,17 @@ get_opts() {
 }
 
 mpv_communicate() {
-    socat - "$SOCKET" < <(printf '%s' "${1:?missing argument to mpv_communicate}")
+    socat - "$SOCKET" < <(printf '%s\n' "${1:?missing argument to mpv_communicate}")
 }
 
 mpv_exec_command() {
-    mpv_communicate "{ \"command\": [${1:?missing argument to mpv_exec_command}] }"
+    mpv_communicate "'{ \"command\": [${1:?missing argument to mpv_exec_command}] }'"
 }
 
 is_active_socket() {
-    if ! pidof mpv >/dev/null 2>&1 && ! mpv_exec_command '"get_property", "path"' >/dev/null 2>&1; then
+    if ! pidof mpv >/dev/null 2>&1 ||
+            [[ ! -S "$SOCKET" ]] ||
+            ! mpv_exec_command '"get_property", "path"' >/dev/null 2>&1; then
         rm "$SOCKET" >&2
         return 1
     fi
@@ -71,13 +73,13 @@ is_active_socket() {
 
 mpv_add() {
     mpv_exec_command "\"loadfile\", \"$1\", \"append-play\"" >/dev/null 2>&1 || return 1
-    notify-send "$TITLE" "Added '$1'"
+    notify-send "smpv - $TITLE" "Added '$1'"
     mpv_exec_command '"get_property", "eof-reached"' | grep -q ":true" || return 0
     mpv_exec_command '"playlist-next"' >/dev/null 2>&1
     mpv_communicate 'cycle pause' >/dev/null 2>&1
 }
 
-mpv_loop() {
+mpv_add_files() {
     for f in "$@"; do
         mpv_add "$f"
     done
@@ -95,7 +97,7 @@ main() {
     get_opts "$@"
 
     if is_active_socket; then
-        mpv_loop "${FILES[@]}"
+        mpv_add_files "${FILES[@]}"
     else
         mpv_start "${FILES[@]}"
     fi
