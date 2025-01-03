@@ -17,16 +17,20 @@ abort() {
     exit 1
 }
 
+get_socket() {
+    find "${MPV_SOCKET_DIR:-/tmp/mpvSockets}/" -type s -name "*$1" | head --lines 1
+}
+
 get_opts() {
     while [[ "$#" -ne 0 ]]; do
         SHIFT_COUNT=1
         case "$1" in
             -u | --umpv)
-                SOCKET="${MPV_UMPV_SOCKET:-${MPV_SOCKET_DIR:-/tmp/mpvSockets}/umpv_socket}"
+                SOCKET="$(get_socket umpv)"
                 TITLE="umpv"
                 ;;
             -m | --music)
-                SOCKET="${MPV_MUSIC_SOCKET:-${MPV_SOCKET_DIR:-/tmp/mpvSockets}/music_socket}"
+                SOCKET="$(get_socket music)"
                 TITLE="music"
                 ;;
             -h | --help)
@@ -38,7 +42,7 @@ get_opts() {
                     usage
                     abort "--socket: Missing TITLE."
                 fi
-                SOCKET="${MPV_SOCKET_DIR:-/tmp/mpvSockets}/$2"
+                SOCKET="$(get_socket "$2")"
                 TITLE="$2"
                 SHIFT_COUNT=2
                 ;;

@@ -37,13 +37,9 @@ local function set_vars()
         SocketDir = join_paths(get_temp_path(), "mpvSockets")
     end
 
-    if o.socket == "pid" then
-        TheSocket = join_paths(SocketDir, os.time(os.date("!*t")))
-    else
-        TheSocket = os.getenv("MPV_" .. string.upper(o.socket) .. "_SOCKET")
-        if not TheSocket then
-            TheSocket = join_paths(SocketDir, o.socket)
-        end
+    TheSocket = join_paths(SocketDir, os.time(os.date("!*t")))
+    if o.socket ~= "pid" then
+        TheSocket = TheSocket .. "_" .. o.socket
     end
 end
 
