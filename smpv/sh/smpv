@@ -92,6 +92,8 @@ mpv_start() {
 main() {
     get_opts "$@"
 
+    [[ -z "$TITLE" ]] && TITLE="pid"
+
     if is_active_socket; then
         mpv_add_files "${FILES[@]}"
     else
