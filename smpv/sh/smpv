@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+
+usage() {
+    cat <<-EOF
+usage: smpv [options] FILE(s)
+
+options:
+    -h, --help            Print this message and exit.
+    -m, --music           Use \$MPV_MUSIC_SOCKET.
+    -u, --umpv            Use \$MPV_UMPV_SOCKET.
+    -s, --socket TITLE    Use \$MPV_SOCKET_DIR/TITLE_socket.
+EOF
+}
+
+abort() {
+    [[ -n "$1" ]] && echo "smpv: $1"
+    exit 1
+}
+
+get_opts() {
+    while [[ "$#" -ne 0 ]]; do
+        SHIFT_COUNT=1
+        case "$1" in
+            -u | --umpv)
+                SOCKET="${MPV_UMPV_SOCKET:-${MPV_SOCKET_DIR:-/tmp/mpvSockets}/umpv_socket}"
+                TITLE="umpv"
+                ;;
+            -m | --music)
+                SOCKET="${MPV_MUSIC_SOCKET:-${MPV_SOCKET_DIR:-/tmp/mpvSockets}/music_socket}"
+                TITLE="music"
+                ;;
+            -h | --help)
+                usage
+                abort
+                ;;
+            -s | --socket)
+                if [[ -z "$2" ]]; then
+                    usage
+                    abort "--socket: Missing TITLE."
+                fi
+                SOCKET="${MPV_SOCKET_DIR:-/tmp/mpvSockets}/$2"
+                TITLE="$2"
+                SHIFT_COUNT=2
+                ;;
+            -*)
+                usage
+                abort "$1: Unrecognized option."
+                ;;
+            *)
+                FILES+=("$1")
+                ;;
+        esac
+        shift "$SHIFT_COUNT"
+    done
+}
+
+mpv_communicate() {
+    socat - "$SOCKET" < <(printf '%s' "${1:?missing argument to mpv_communicate}")
+}
+
+mpv_exec_command() {
+    mpv_communicate "{ \"command\": [${1:?missing argument to mpv_exec_command}] }"
+}
+
+is_active_socket() {
+    if ! pidof mpv >/dev/null 2>&1 && ! mpv_exec_command '"get_property", "path"' >/dev/null 2>&1; then
+        rm "$SOCKET" >&2
+        return 1
+    fi
+}
+
+mpv_add() {
+    mpv_exec_command "\"loadfile\", \"$1\", \"append-play\"" >/dev/null 2>&1 || return 1
+    notify-send "$TITLE" "Added '$1'"
+    mpv_exec_command '"get_property", "eof-reached"' | grep -q ":true" || return 0
+    mpv_exec_command '"playlist-next"' >/dev/null 2>&1
+    mpv_communicate 'cycle pause' >/dev/null 2>&1
+}
+
+mpv_loop() {
+    for f in "$@"; do
+        mpv_add "$f"
+    done
+}
+
+mpv_start() {
+    mpv --idle=yes \
+        --script-opts=mpvSockets-socket="$TITLE" \
+        --loop-playlist=no \
+        --keep-open=yes \
+        "$@" >/dev/null 2>&1 &
+}
+
+main() {
+    get_opts "$@"
+
+    if is_active_socket; then
+        mpv_loop "${FILES[@]}"
+    else
+        mpv_start "${FILES[@]}"
+    fi
+}
+
+main "$@"
