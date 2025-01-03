@@ -13,6 +13,7 @@ EOF
 }
 
 abort() {
+    usage
     [[ -n "$1" ]] && echo "smpv: $1"
     exit 1
 }
@@ -33,26 +34,17 @@ get_opts() {
                 SOCKET="$(get_socket music)"
                 TITLE="music"
                 ;;
-            -h | --help)
-                usage
-                abort
-                ;;
+            -h | --help) abort ;;
             -s | --socket)
                 if [[ -z "$2" ]]; then
-                    usage
                     abort "--socket: Missing TITLE."
                 fi
                 SOCKET="$(get_socket "$2")"
                 TITLE="$2"
                 SHIFT_COUNT=2
                 ;;
-            -*)
-                usage
-                abort "$1: Unrecognized option."
-                ;;
-            *)
-                FILES+=("$1")
-                ;;
+            -*) abort "$1: Unrecognized option." ;;
+            *) FILES+=("$1") ;;
         esac
         shift "$SHIFT_COUNT"
     done
