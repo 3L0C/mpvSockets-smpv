@@ -55,7 +55,7 @@ mpv_communicate() {
 }
 
 mpv_exec_command() {
-    mpv_communicate "'{ \"command\": [${1:?missing argument to mpv_exec_command}] }'"
+    mpv_communicate "{ \"command\": [${1:?missing argument to mpv_exec_command}] }"
 }
 
 is_active_socket() {
