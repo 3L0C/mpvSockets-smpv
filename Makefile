@@ -13,7 +13,7 @@ MPV_OPTS     := $(MPV_HOME)/script-opts
 
 # Files
 LUA_FILES    := $(wildcard $(SOURCE_DIR)/*.lua)
-SHELL_FILES  := $(SOURCE_DIR)/$(NAME)/shell/$(NAME) $(SOURCE_DIR)/$(NAME)/shell/Test\ File.sh
+SHELL_FILES  := $(SOURCE_DIR)/$(NAME)/shell/$(NAME)
 
 # Targets
 all: lua shell
