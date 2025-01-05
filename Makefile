@@ -19,7 +19,7 @@ SHELL_FILES  := $(SOURCE_DIR)/$(NAME)/shell/$(NAME) $(SOURCE_DIR)/$(NAME)/shell/
 all: lua shell
 
 lua: $(LUA_FILES)
-	ln -s -t "$(MPV_SCRIPTS)" "$$PWD/$^"
+	ln -fs -t "$(MPV_SCRIPTS)" "$$PWD/$^"
 
 shell: $(SHELL_FILES)
 	cp -f -t "$(DESTDIR)$(PREFIX)/bin" "$^"
