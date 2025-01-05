@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+SOCKET_DIR="${MPV_SOCKET_DIR:-/tmp/mpvSockets}/"
+
 usage() {
     cat <<-EOF
 usage: smpv [options] FILE(s)
@@ -19,7 +21,7 @@ abort() {
 }
 
 get_socket() {
-    find "${MPV_SOCKET_DIR:-/tmp/mpvSockets}/" -type s -name "*$1" | head --lines 1
+    [[ -d "$SOCKET_DIR" ]] && find "$SOCKET_DIR" -type s -name "*$1" | head --lines 1
 }
 
 get_opts() {
